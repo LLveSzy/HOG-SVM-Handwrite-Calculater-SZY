@@ -43,13 +43,14 @@ def proc(rootdir):
         extend_mnist(path,10+cnt)
 
 # --- 扩充mnist -- #
-#dataset = datasets.fetch_mldata("MNIST Original",data_home=r'.')
-#features = np.array(dataset.data, 'int16') 
-#labels = np.array(dataset.target, 'int')
-#dt = dataset.data
-#lb = dataset.target
-#proc(rootdir)
-#sio.savemat("./mldata/mnist-extend.mat",{'data':dt,'target':lb})
+def get_mathsymbol():
+    dataset = datasets.fetch_mldata("MNIST Original",data_home=r'.')
+    features = np.array(dataset.data, 'int16') 
+    labels = np.array(dataset.target, 'int')
+    dt = dataset.data
+    lb = dataset.target
+    proc(rootdir)
+    sio.savemat("./mldata/mnist-extend.mat",{'data':dt,'target':lb})
 
 
 #def load_mnist(path):            #读取数据函数
@@ -74,23 +75,23 @@ def proc(rootdir):
 
 
 #---training------#
-list_hog_fd = [] 
-for feature in features:
-    fd = hog(feature.reshape((28, 28)),     # hog 特征
-             orientations=9, 
-             pixels_per_cell=(14, 14), 
-             cells_per_block=(1, 1), 
-             visualise=False)
-    list_hog_fd.append(fd)
-hog_features = np.array(list_hog_fd, 'float64')
-
-clf =svm.SVC(C=0.7, cache_size=200, class_weight=None, coef0=0.0, 
-    decision_function_shape='ovo', degree=5, gamma='auto_deprecated',
-    kernel='rbf', max_iter=-1, probability=True, random_state=None,
-    shrinking=True, tol=0.04, verbose=False)                          
-
-clf.fit(hog_features, labels)                    
-joblib.dump(clf, "digits_cls_ex.pkl", compress=3)  
+    list_hog_fd = [] 
+    for feature in features:
+        fd = hog(feature.reshape((28, 28)),     # hog 特征
+                 orientations=9, 
+                 pixels_per_cell=(14, 14), 
+                 cells_per_block=(1, 1), 
+                 visualise=False)
+        list_hog_fd.append(fd)
+    hog_features = np.array(list_hog_fd, 'float64')
+    
+    clf =svm.SVC(C=0.7, cache_size=200, class_weight=None, coef0=0.0, 
+        decision_function_shape='ovo', degree=5, gamma='auto_deprecated',
+        kernel='rbf', max_iter=-1, probability=True, random_state=None,
+        shrinking=True, tol=0.04, verbose=False)                          
+    
+    clf.fit(hog_features, labels)                    
+    joblib.dump(clf, "digits_cls_ex.pkl", compress=3)  
 
 # 压缩：0到9的整数可选
 # 压缩级别：0没有压缩。越高意味着更多的压缩，而且读取和写入越慢。使用3的值通常是一个很好的折衷。

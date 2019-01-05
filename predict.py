@@ -77,7 +77,7 @@ def pre_img_1(im,bush_points):
 #    return imgs
 
 def pred(im):
-    roi = cv2.dilate(im, (3, 3))
+    roi = cv2.dilate(im, (1, 1))
     clf = joblib.load("digits_cls_ex.pkl")
     roi_hog_fd = hog(roi, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)  
     nbr = clf.predict(np.array([roi_hog_fd], 'float64'))

@@ -18,7 +18,7 @@ def proc_array(points_lst):
         poly[:,1] = poly[:,1] - y0 +brush//2
         poly_img = np.zeros((y1-y0 + brush, x1-x0 + brush, 3), np.uint8)
         for i in range(len(poly[:,0])-1):       
-            cv2.line(poly_img,(poly[i][0],poly[i][1]),(poly[i+1][0],poly[i+1][1]),(255,255,255),brush)
+            cv2.line(poly_img,(poly[i][0],poly[i][1]),(poly[i+1][0],poly[i+1][1]),(255,255,255),brush if(brush > 0) else 1)
         
     else:
         min_x = min_y = 1000
@@ -33,7 +33,7 @@ def proc_array(points_lst):
 #            min_x,min_y = min(min_x,min(points[0][:])),min(min_y,min(points[1][:]))
 #            max_x,max_y = max(max_x,min(points[0][:])),max(max_y,min(points[1][:]))
         brush = max([max_x-min_x,max_y-min_y])//8
-        poly_img = np.zeros((max_y - min_y + 6, max_x - min_x + 6, 3), np.uint8)    
+        poly_img = np.zeros((max_y - min_y + brush, max_x - min_x + brush, 3), np.uint8)    
         for points in points_lst:
             for i in range(len(points)-1):       
                 cv2.line(poly_img,(points[i][0] - min_x + brush//2,points[i][1] - min_y + brush//2), \
@@ -99,19 +99,19 @@ def postfix_calculate(s):
         elif x == "+":
             a = stack.pop()
             b = stack.pop()
-            stack.push(int(a)+int(b))
+            stack.push(float(a)+float(b))
         elif x == "-":
             a = stack.pop()
             b = stack.pop()
-            stack.push(int(b)-int(a))
+            stack.push(float(b)-float(a))
         elif x == "X":
             a = stack.pop()
             b = stack.pop()
-            stack.push(int(a)*int(b))
+            stack.push(float(a)*float(b))
         elif x == "/":
             a = stack.pop()
             b = stack.pop()
-            stack.push(int(b)/int(a))
+            stack.push(float(b)/float(a))
  
     return stack.peek()
 
@@ -135,23 +135,38 @@ def middle2behind(expression):
             elif expression[item] in 'X/(':   # 如果当前字符为*/（，直接入栈
                 stack.append(expression[item])
             elif expression[item] == ')':     # 如果右括号则全部弹出（碰到左括号停止）
-                t = tuple(stack.pop())
+                if len(stack):
+                    t = tuple(stack.pop())
+                else:
+                    return False
                 while operator.eq(t[0],'(') == False:   
 #                    result.append(t)
                     result = result + t
-                    t = tuple(stack.pop())
+                    if len(stack):
+                        t = tuple(stack.pop())
+                    else:
+                        return False
             # 如果当前字符为加减且栈顶为乘除，则开始弹出
             elif expression[item] in '+-' and stack[len(stack)-1] in 'X/':
                 if stack.count('(') == 0:           # 如果有左括号，弹到左括号为止     
                     while stack:
 #                        result.append(stack.pop())
-                        result = result + tuple(stack.pop())
+                        if len(stack):
+                            result = result + tuple(stack.pop())
+                        else:
+                            return False
                 else:                               # 如果没有左括号，弹出所有
-                    t = tuple(stack.pop())
+                    if len(stack):
+                        t = tuple(stack.pop())
+                    else:
+                        return False
                     while operator.eq(t[0],'(') == False:
 #                        result.append(t)
                         result = result + t
-                        t = (stack.pop())
+                        if len(stack):
+                            t = (stack.pop())
+                        else:
+                            return False  
                     stack.append('(')
                 stack.append(expression[item])  # 弹出操作完成后将‘+-’入栈
             else:

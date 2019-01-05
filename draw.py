@@ -9,10 +9,7 @@ import cv2
 import numpy as np
 import predict
 import utils
-import matplotlib.pyplot as plt
-#def proc_img()
-
-    
+   
     
 def mouse_event(event, x, y, flags, param): 
     global start, drawing,x0,y0,img,rects,bush_poly,bush_points,points
@@ -92,7 +89,11 @@ if __name__ == "__main__":
             
             #计算结果
 #            rs = rs + "=" + str(utils.postfix_calculate(utils.middle2behind(rs)))
-            cv2.putText(img, rs, (30, 400),cv2.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 2)
+            
+            tp = utils.middle2behind(rs)
+            res = str(utils.postfix_calculate(tp)) if (tp != False) else '?' 
+            font_size = 2 if(30 + 40*len(rs + "=" + res) < 700) else 1
+            cv2.putText(img,rs + "=" + res, (30, 400),cv2.FONT_HERSHEY_DUPLEX, font_size, (0, 0, 255), 2)
             
         elif cv2.waitKey(1)& 0xFF == ord('w'):
             img = np.zeros((512, 700, 3), np.uint8) + 255
