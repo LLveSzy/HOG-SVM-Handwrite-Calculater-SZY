@@ -12,8 +12,7 @@ import numpy as np
 import utils
 
 
-def pre_img_1(im,bush_points):               
-    clf = joblib.load("digits_cls_ex.pkl")                 
+def pre_img_1(im,bush_points):                              
     im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)      
     im_gray = cv2.GaussianBlur(im_gray, (5, 5), 0)      
     
@@ -35,11 +34,23 @@ def pre_img_1(im,bush_points):
     
     #连通域
     left_to_right = sorted(left_to_right, key=lambda left_to_right : left_to_right[:][0])
+    lrarray = np.array(left_to_right)
+    means = np.mean(lrarray[:,2].T*lrarray[:,3])
+    meanht = np.mean(lrarray[:,3])
+    meanh = np.mean(lrarray[:,1]+lrarray[:,3]/2)
 #    bush_points = sorted(bush_points,key=lambda bush_points : bush_points[:][-1][0])
 #    print (left_to_right)
     pred_res = []
+    points = []
     print(left_to_right)
+    cnt = 0
     for region in left_to_right:
+         #如果连通区域小于平均大小10%,长宽比在0.8到1.2之间 处于平均高度下方20%以上  看作小数点 continue
+        if region[2]*region[3] / means < 0.1 and (region[1] - meanh) / meanht > 0.35:
+            points.append(cnt)
+            cnt += 1
+            continue
+        
         #找到范围之内的笔画
         ls = []
         for i in mxmn:
@@ -59,12 +70,11 @@ def pre_img_1(im,bush_points):
             
             while idx <  len(ls) and ((ls[idx][0] + ls[idx][1]) - (ls[idx-1][0] + ls[idx-1][1]))/2 \
                                     /(max(ls[idx][1],ls[idx-1][1]) - min(ls[idx][0],ls[idx-1][0])) < 0.4: #下一笔仍在范围之内
-                result.append(bush_points[ls[idx][2]])
+                result.append(bush_points[ls[idx][2]])     
                 idx = idx + 1
-                
-        
-                
             pred_res.append(pred(utils.handl_img(utils.proc_array(result)))) 
+            cnt = cnt + 1
+          
                      
 #        for pl in np.array(ls)[:,2
  #            result.append(bush_points[pl]) #点序列
@@ -73,12 +83,14 @@ def pre_img_1(im,bush_points):
 #        image = im[region[1]:(region[1]+region[3]),region[0]:(region[0]+region[2]),:]    
 #        img = utils.handl_img(255-image)  
 #        result.append(pred(img))
+    for a in points:
+        pred_res.insert(a,'16')
+    print(pred_res)
     return pred_res
 #    return imgs
-
+clf = joblib.load("digits_cls_ex.pkl")  
 def pred(im):
     roi = cv2.dilate(im, (1, 1))
-    clf = joblib.load("digits_cls_ex.pkl")
     roi_hog_fd = hog(roi, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)  
     nbr = clf.predict(np.array([roi_hog_fd], 'float64'))
     return str(nbr[0])

@@ -82,6 +82,8 @@ if __name__ == "__main__":
                     out = '+'
                 elif pre == 15:
                     out = '-'
+                elif pre == 16:
+                    out = '.'
                 else:
                     out = str(pre)
                 rs = rs + out

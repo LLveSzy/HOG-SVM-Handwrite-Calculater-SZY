@@ -95,23 +95,25 @@ def postfix_calculate(s):
     stack = Stack()
     for x in s:
         if str(x).isdigit():
-            stack.push(x)
-        elif x == "+":
+            stack.push(x) 
+        elif x == "+" :
             a = stack.pop()
             b = stack.pop()
             stack.push(float(a)+float(b))
-        elif x == "-":
+        elif x == "-" :
             a = stack.pop()
             b = stack.pop()
             stack.push(float(b)-float(a))
-        elif x == "X":
+        elif x == "X" :
             a = stack.pop()
             b = stack.pop()
             stack.push(float(a)*float(b))
-        elif x == "/":
+        elif x == "/" :
             a = stack.pop()
             b = stack.pop()
             stack.push(float(b)/float(a))
+#        else :
+#            return '?'
  
     return stack.peek()
 
@@ -122,10 +124,16 @@ def middle2behind(expression):
     item = 0
     while item < len(expression): 
         if expression[item].isnumeric():      # 如果当前字符为数字那么直接放入结果列表
-            res = int(expression[item])
-            while item+1 < len(expression) and expression[item+1].isnumeric() :
+            res = float(expression[item])
+            res_p = 1
+            while item+1 < len(expression) and expression[item+1].isnumeric():
                 item = item + 1
-                res = res * 10 + int(expression[item])  
+                res = res * 10 + float(expression[item]) 
+            if item+1 < len(expression) and expression[item+1] == '.':
+                item = item + 1
+                while item+1 < len(expression) and expression[item+1].isnumeric():
+                    item = item + 1
+                    res = res + res_p/10 * float(expression[item])
 #            print(res,item)
 #            result.append(res)
             result = result + tuple([res])
