@@ -14,7 +14,6 @@ from sklearn import tree
 import numpy as np
 import scipy.io as sio
 import os
-import struct
 import cv2
 
 rootdir = "./cfs/"
@@ -75,23 +74,23 @@ def get_mathsymbol():
 
 
 #---training------#
-    list_hog_fd = [] 
-    for feature in features:
-        fd = hog(feature.reshape((28, 28)),     # hog 特征
-                 orientations=9, 
-                 pixels_per_cell=(14, 14), 
-                 cells_per_block=(1, 1), 
-                 visualise=False)
-        list_hog_fd.append(fd)
-    hog_features = np.array(list_hog_fd, 'float64')
-    
-    clf =svm.SVC(C=0.7, cache_size=200, class_weight=None, coef0=0.0, 
-        decision_function_shape='ovo', degree=5, gamma='auto_deprecated',
-        kernel='rbf', max_iter=-1, probability=True, random_state=None,
-        shrinking=True, tol=0.04, verbose=False)                          
-    
-    clf.fit(hog_features, labels)                    
-    joblib.dump(clf, "digits_cls_ex.pkl", compress=3)  
+list_hog_fd = [] 
+for feature in features:
+    fd = hog(feature.reshape((28, 28)),     # hog 特征
+             orientations=9, 
+             pixels_per_cell=(14, 14), 
+             cells_per_block=(1, 1), 
+             visualise=False)
+    list_hog_fd.append(fd)
+hog_features = np.array(list_hog_fd, 'float64')
+
+clf =svm.SVC(C=1.5, cache_size=500, class_weight=None, coef0=0.0, 
+    decision_function_shape='ovo', degree=5, gamma='auto_deprecated',
+    kernel='rbf', max_iter=-1, probability=True, random_state=None,
+    shrinking=True, tol=0.04, verbose=False)                          
+
+clf.fit(hog_features, labels)                    
+joblib.dump(clf, "digits_cls_ex_2.pkl", compress=3)  
 
 # 压缩：0到9的整数可选
 # 压缩级别：0没有压缩。越高意味着更多的压缩，而且读取和写入越慢。使用3的值通常是一个很好的折衷。

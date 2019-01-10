@@ -96,23 +96,24 @@ def postfix_calculate(s):
     for x in s:
         if str(x).isdigit():
             stack.push(x)
-        elif x == "+":
+        elif x == "+" and stack.size() > 1:
             a = stack.pop()
             b = stack.pop()
             stack.push(float(a)+float(b))
-        elif x == "-":
+        elif x == "-" and stack.size() > 1:
             a = stack.pop()
             b = stack.pop()
             stack.push(float(b)-float(a))
-        elif x == "X":
+        elif x == "X" and stack.size() > 1:
             a = stack.pop()
             b = stack.pop()
             stack.push(float(a)*float(b))
-        elif x == "/":
+        elif x == "/" and stack.size() > 1:
             a = stack.pop()
             b = stack.pop()
             stack.push(float(b)/float(a))
- 
+        else :
+            return '?'
     return stack.peek()
 
 def middle2behind(expression):  

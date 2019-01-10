@@ -12,8 +12,7 @@ import numpy as np
 import utils
 
 
-def pre_img_1(im,bush_points):               
-    clf = joblib.load("digits_cls_ex.pkl")                 
+def pre_img_1(im,bush_points):      
     im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)      
     im_gray = cv2.GaussianBlur(im_gray, (5, 5), 0)      
     
@@ -40,6 +39,7 @@ def pre_img_1(im,bush_points):
     pred_res = []
     print(left_to_right)
     for region in left_to_right:
+        #如果连通区域小于平均大小10%,长宽比在0.8到1.2之间 处于平均高度下方20%以上  看作小数点 continue
         #找到范围之内的笔画
         ls = []
         for i in mxmn:
@@ -47,8 +47,8 @@ def pre_img_1(im,bush_points):
                 ls.append(i)
                 if i[4] < region[1]  or i[3] > region[1] + region[3]:  #如果并不连通
                     del left_to_right[0]
-        
-        ls = sorted(ls ,key=lambda ls : (ls[:][0] + ls[:][1])/2)
+
+        ls = sorted(ls ,key=lambda ls : (ls[:][0] + ls[:][1])/2) #按中线排序
 
         idx = 0
 
@@ -60,10 +60,11 @@ def pre_img_1(im,bush_points):
             while idx <  len(ls) and ((ls[idx][0] + ls[idx][1]) - (ls[idx-1][0] + ls[idx-1][1]))/2 \
                                     /(max(ls[idx][1],ls[idx-1][1]) - min(ls[idx][0],ls[idx-1][0])) < 0.4: #下一笔仍在范围之内
                 result.append(bush_points[ls[idx][2]])
+                #增加位置下标
                 idx = idx + 1
                 
         
-                
+                 
             pred_res.append(pred(utils.handl_img(utils.proc_array(result)))) 
                      
 #        for pl in np.array(ls)[:,2
@@ -75,16 +76,15 @@ def pre_img_1(im,bush_points):
 #        result.append(pred(img))
     return pred_res
 #    return imgs
-
+clf = joblib.load("digits_cls_ex.pkl")
 def pred(im):
     roi = cv2.dilate(im, (1, 1))
-    clf = joblib.load("digits_cls_ex.pkl")
     roi_hog_fd = hog(roi, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)  
     nbr = clf.predict(np.array([roi_hog_fd], 'float64'))
     return str(nbr[0])
     
 def pre_img(im):                      
-    clf = joblib.load("digits_cls_ex.pkl")                 
+    clf = joblib.load("digit s_cls_ex.pkl")                 
     im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)      
     im_gray = cv2.GaussianBlur(im_gray, (5, 5), 0)      
     
